@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: ghostwhite;
+}
+
+header {
+  font-size: 3em;
+  color: midnightblue;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  color: ghostwhite;
+  margin: 3rem;
+}
+
+table {
+  border: 4px solid midnightblue;
+}
+
+td {
+  border: 6px solid midnightblue;
+  height: 20px;
+  width: 20px;
+}
+p{
+  font-size: 0.7rem;
+}
+tr{
+  background-color: midnightblue;
+}
+button{
+  font-size: 1em;
+  color: midnightblue;
+}
