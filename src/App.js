@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import "./App.css"
+import Square from "./Square"
 import axios from "axios"
-import Cell from "./Cell";
 
 class App extends Component {
   constructor(props) {
@@ -19,87 +19,124 @@ class App extends Component {
         [" ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " "]
       ],
-      state: "new",
-      mines: 10,
-      difficulty: 0
+      state: "playing",
+      mines: 0
     }
   }
-  newGame = event => {
+
+  _easyGame = event => {
     axios
-    .post("http://minesweeper-api.herokuapp.com/games", {difficulty: this.state.difficulty})
-    .then(response =>{
-      this.setState(response.data)
-    })
+      .post("https://minesweeper-api.herokuapp.com/games", { difficulty: 0 })
+      .then(response => {
+        this.setState(response.data)
+      })
   }
 
-  check = (row, column) => {
-    if(this.state.id === 0) {
+  _mediumGame = event => {
+    axios
+      .post("https://minesweeper-api.herokuapp.com/games", { difficulty: 1 })
+      .then(response => {
+        this.setState(response.data)
+      })
+  }
+
+  _hardGame = event => {
+    axios
+      .post("https://minesweeper-api.herokuapp.com/games", { difficulty: 2 })
+      .then(response => {
+        this.setState(response.data)
+      })
+  }
+
+  handleCheck = (row, column) => {
+    if (this.state.id === 0) {
       return
     }
-
     axios
-    .post(`http://minesweeper-api.herokuapp.com/games/${this.state.id}/check`, {row: row, col: column})
-    .then(response =>{
-      this.setState(response.data)
-    })
+      .post(
+        `https://minesweeper-api.herokuapp.com/games/${this.state.id}/check`,
+        { row: row, col: column }
+      )
+      .then(response => {
+        this.setState(response.data)
+      })
   }
 
-  flag = (row, column) => {
-    if(this.state.id === 0) {
+  handleFlag = (row, column) => {
+    if (this.state.id === 0) {
       return
     }
-
     axios
-    .post(`http://minesweeper-api.herokuapp.com/games/${this.state.id}/flag`, {row: row, col: column})
-    .then(response =>{
-      this.setState(response.data)
-    })
+      .post(
+        `https://minesweeper-api.herokuapp.com/games/${this.state.id}/flag`,
+        { row: row, col: column }
+      )
+      .then(response => {
+        this.setState(response.data)
+      })
   }
 
-  Message = () => {
-    if(this.state.id === 0) {
-      return <p>Click for new game</p>
+  gameMessage = () => {
+    if (this.state.id === 0) {
+      return <p>Choose Difficulty to Start a Game</p>
     }
-    return <p> Game # {this.state.id}</p>
+    return <p>Game #{this.state.id}</p>
+  }
+
+  gameStatus = () => {
+    if (this.state.id === 0) {
+      return "Ready to Play"
+    }
+    return `Status: ${this.state.state}`
   }
 
   render() {
+    let gameBoard = this.state.board.map((row, rowIndex) => {
+      return (
+        <tr key={rowIndex}>
+          {row.map((value, columnIndex) => {
+            return (
+              <Square
+                key={columnIndex}
+                handleFlag={this.handleFlag}
+                handleCheck={this.handleCheck}
+                row={rowIndex}
+                column={columnIndex}
+                value={value}
+              />
+            )
+          })}
+        </tr>
+      )
+    })
+
     return (
-      <div className="App">
-        <header>MineSweeper</header>
+      <div className="main">
+        <header>
+          <h1>Minesweeper</h1>
+          <h2>{this.gameMessage()}</h2>
+        </header>
+
+        <div className="diff-select">
+          <button onClick={this._easyGame}>Easy</button>
+          <button onClick={this._mediumGame}>Medium</button>
+          <button onClick={this._hardGame}>Hard</button>
+        </div>
+
         <main>
-          <table className="table">
-            <tbody>
-              <tr>
-                <td colSpan={this.state.board[0].length}>
-                  <button onClick={this.newGame}>
-                    New Game
-                  </button>
-                  {
-                    this.Message()
-                  }
-                  <p> Mines {this.state.mines} </p>
-                </td>
-              </tr>
-              {
-                this.state.board.map((row, rowIndex) => {
-                 return (
-                  <tr>
-                    {
-                      row.map((value, index) => {
-                        return <Cell value = {value} row = {rowIndex} column = {index} check = {this.check} flag = {this.flag}/>
-                      })
-                    }
-                  </tr>
-                 ) 
-                })
-              }
-            </tbody>
+          <div>
+            <p className="status">{this.gameStatus()}</p>
+          </div>
+          <h3>
+            <span>Mines: {this.state.mines}</span>
+          </h3>
+
+          <table>
+            <tbody>{gameBoard}</tbody>
           </table>
         </main>
       </div>
     )
   }
 }
-
 export default App
